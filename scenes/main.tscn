@@ -1,10 +1,9 @@
 [gd_scene format=3 uid="uid://c3w82577f3g4n"]
 
-[ext_resource type="Script" uid="uid://drpwd3bjm4cwe" path="res://scripts/ui/main_control.gd" id="1_y6deb"]
 [ext_resource type="Texture2D" uid="uid://bou3qmmav31x7" path="res://assets/sprites/cat_clicker_room_pixelated.png" id="2_og1vs"]
 [ext_resource type="Script" uid="uid://4rp6fnpx524w" path="res://scripts/ui/cats_label.gd" id="3_2wyq8"]
 [ext_resource type="Texture2D" uid="uid://gi6a5wg2slma" path="res://assets/sprites/cat.png" id="4_vxglm"]
-[ext_resource type="Script" uid="uid://dtaitkysdkly3" path="res://scripts/ui/cat_button.gd" id="5_2f3dj"]
+[ext_resource type="Script" uid="uid://dtaitkysdkly3" path="res://scripts/ui/game_button.gd" id="5_2f3dj"]
 [ext_resource type="AudioStream" uid="uid://frspakws08im" path="res://assets/audio/scratch-cat-meow.mp3" id="6_yq6so"]
 [ext_resource type="Texture2D" uid="uid://v57y1dhoapmi" path="res://assets/sprites/ui/Upgrade.png" id="7_fv21b"]
 [ext_resource type="Script" uid="uid://da4sefbnnopci" path="res://scripts/ui/upgrade_menu.gd" id="8_tel4y"]
@@ -17,15 +16,13 @@
 [ext_resource type="Texture2D" uid="uid://cbdyr5cfwj6yw" path="res://assets/sprites/upgrades/Factory.png" id="16_c6pm6"]
 [ext_resource type="Texture2D" uid="uid://dibiyvjbwwcr0" path="res://assets/sprites/upgrades/Satellite.png" id="17_5he1u"]
 
-[node name="Main" type="Control" unique_id=1837436629 node_paths=PackedStringArray("upgrades_menu")]
+[node name="Main" type="Control" unique_id=1837436629]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-script = ExtResource("1_y6deb")
-upgrades_menu = NodePath("UpgradeMenu/Panel")
 
 [node name="Background" type="TextureRect" parent="." unique_id=1419809679]
 texture_filter = 1

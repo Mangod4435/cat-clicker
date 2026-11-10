@@ -12,6 +12,7 @@ const CAT_SHIFT := 410.0
 var _closed_pos: Vector2
 var _cat_closed_pos: Vector2
 var _shift_closed_pos: Array[Vector2] = []
+var _is_open := false
 
 
 func _ready() -> void:
@@ -22,9 +23,9 @@ func _ready() -> void:
 
 
 func _process(_delta: float) -> void:
-	var is_open := UIState.state == UIState.OpenedInterface.UPGRADE
-	position = _closed_pos + (Vector2(-SLIDE, 0) if is_open else Vector2.ZERO)
-	var cat_offset := Vector2(-CAT_SHIFT, 0) if is_open else Vector2.ZERO
+	position = _closed_pos + (Vector2(-SLIDE, 0) if _is_open else Vector2.ZERO)
+	panel.visible = _is_open # was MainControl's job; it no longer exists
+	var cat_offset := Vector2(-CAT_SHIFT, 0) if _is_open else Vector2.ZERO
 	cat.position = _cat_closed_pos + cat_offset
 	for i in shift_with_cat.size():
 		shift_with_cat[i].position = _shift_closed_pos[i] + cat_offset
@@ -32,8 +33,9 @@ func _process(_delta: float) -> void:
 
 ## Connect the "pressed" signal to this yourself.
 func on_clicked() -> void:
-	UIState.state = (
-		UIState.OpenedInterface.NONE
-		if UIState.state == UIState.OpenedInterface.UPGRADE
-		else UIState.OpenedInterface.UPGRADE
-	)
+	_is_open = not _is_open
+
+
+## Close the menu (e.g. when the game is reset).
+func close() -> void:
+	_is_open = false
