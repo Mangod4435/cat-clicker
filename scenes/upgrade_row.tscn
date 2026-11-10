@@ -1,0 +1,54 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/upgrade_row.gd" id="1_5lhp2"]
+
+[node name="UpgradeRow" type="Button" unique_id=922814245]
+custom_minimum_size = Vector2(900, 200)
+offset_right = 900.0
+offset_bottom = 200.0
+script = ExtResource("1_5lhp2")
+
+[node name="Icon" type="TextureRect" parent="." unique_id=1384900361]
+layout_mode = 0
+offset_right = 200.0
+offset_bottom = 200.0
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Name" type="Label" parent="." unique_id=1716051551]
+layout_mode = 0
+offset_left = 215.0
+offset_top = 10.0
+offset_right = 685.0
+offset_bottom = 100.0
+theme_override_font_sizes/font_size = 70
+text = "Upgrade"
+vertical_alignment = 1
+
+[node name="Cost" type="Label" parent="." unique_id=1335755977]
+layout_mode = 0
+offset_left = 215.0
+offset_top = 100.0
+offset_right = 685.0
+offset_bottom = 190.0
+theme_override_font_sizes/font_size = 52
+text = "0 Cats"
+vertical_alignment = 1
+
+[node name="Amount" type="Label" parent="." unique_id=1718792836]
+layout_mode = 0
+offset_left = 690.0
+offset_right = 880.0
+offset_bottom = 200.0
+theme_override_font_sizes/font_size = 140
+text = "0"
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="Mask" type="ColorRect" parent="." unique_id=2118728697]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+color = Color(0, 0, 0, 0.5)
