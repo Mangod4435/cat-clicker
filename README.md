@@ -2,18 +2,16 @@
 
 Port of the Unity WebGL version. Renderer: Compatibility (web-friendly). Viewport 2560x1440 (same as the Unity canvas), stretch mode `canvas_items`.
 
-## Signals are NOT connected
-Every handler exists as a public method, but no signal is wired. Connect them in the editor (Node dock → Signals):
+## Signals
+Wired in `scenes/main.tscn`:
 
 | Node (in `scenes/main.tscn`) | Signal | Method |
 |---|---|---|
 | `Cat` | `pressed` | `on_clicked` |
 | `UpgradeMenu` | `pressed` | `on_clicked` |
-| `SettingButton` | `pressed` | `on_clicked` |
-| `SettingsPanel/.../SoundToggle` | `toggled` | `on_toggled` |
-| `SettingsPanel/.../SaveButton` | `pressed` | `on_clicked` |
-| `SettingsPanel/.../ResetButton` | `pressed` | `on_clicked` |
 | each of the 7 rows under `UpgradeMenu/Panel/.../Rows` | `pressed` | `on_clicked` |
+
+The settings UI (`SettingButton`, `SoundToggle`, `SaveButton`, `ResetButton`) is not in the scene yet; those handlers are ready to connect once the nodes exist.
 
 ## Layout
 - `scripts/game_manager.gd` (autoload) - cats, CPC/CPS, upgrades, autosave every 30s, save on focus loss
