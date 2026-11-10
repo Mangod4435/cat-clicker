@@ -159,3 +159,13 @@ row_icon = ExtResource("16_c6pm6")
 layout_mode = 2
 upgrade_name = "Satellite"
 row_icon = ExtResource("17_5he1u")
+
+[connection signal="pressed" from="CenterZone/Cat" to="CenterZone/Cat" method="on_clicked"]
+[connection signal="pressed" from="UpgradeMenu" to="UpgradeMenu" method="on_clicked"]
+[connection signal="pressed" from="UpgradeMenu/Panel/Margin/Scroll/Rows/SharpClaw" to="UpgradeMenu/Panel/Margin/Scroll/Rows/SharpClaw" method="on_clicked"]
+[connection signal="pressed" from="UpgradeMenu/Panel/Margin/Scroll/Rows/CozySpot" to="UpgradeMenu/Panel/Margin/Scroll/Rows/CozySpot" method="on_clicked"]
+[connection signal="pressed" from="UpgradeMenu/Panel/Margin/Scroll/Rows/FishBowl" to="UpgradeMenu/Panel/Margin/Scroll/Rows/FishBowl" method="on_clicked"]
+[connection signal="pressed" from="UpgradeMenu/Panel/Margin/Scroll/Rows/TV" to="UpgradeMenu/Panel/Margin/Scroll/Rows/TV" method="on_clicked"]
+[connection signal="pressed" from="UpgradeMenu/Panel/Margin/Scroll/Rows/Laser" to="UpgradeMenu/Panel/Margin/Scroll/Rows/Laser" method="on_clicked"]
+[connection signal="pressed" from="UpgradeMenu/Panel/Margin/Scroll/Rows/Factory" to="UpgradeMenu/Panel/Margin/Scroll/Rows/Factory" method="on_clicked"]
+[connection signal="pressed" from="UpgradeMenu/Panel/Margin/Scroll/Rows/Satellite" to="UpgradeMenu/Panel/Margin/Scroll/Rows/Satellite" method="on_clicked"]
