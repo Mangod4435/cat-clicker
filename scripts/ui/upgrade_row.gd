@@ -76,6 +76,9 @@ func _apply_reveal_side_effect(state: int) -> void:
 
 
 func _apply_state(state: int) -> void:
+	# Hidden rows are removed from the list layout, so unlocking an upgrade does not
+	# leave an empty gap (or an "invisible button") above the first visible row.
+	visible = state != ButtonState.UNREVEALED
 	match state:
 		ButtonState.AVAILABLE:
 			modulate.a = 1.0
@@ -93,6 +96,6 @@ func _apply_state(state: int) -> void:
 			disabled = true
 			_icon.modulate = Color.BLACK # silhouette
 		ButtonState.UNREVEALED:
-			modulate.a = 0.0 # invisible but keeps its slot in the list
+			modulate.a = 1.0
 			_mask.visible = true
 			disabled = true
