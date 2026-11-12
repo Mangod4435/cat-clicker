@@ -2,22 +2,20 @@ extends TextureButton
 ## Port of UpgradeMenu.cs. This is the toggle button; its child "Panel" holds the upgrade list.
 ## When open, the button (and its panel) slide left and the cat shifts to make room.
 
-@export var cat: Control
 @export var panel: Control
 @export var shift_with_cat: Array[Control] = [] # e.g. the cats counter
 
 const SLIDE := 960.0
 const CAT_SHIFT := 410.0
 
-var _closed_pos: Vector2
-var _cat_closed_pos: Vector2
+@onready var cat: Control = get_node("/root/Main/CenterZone")
+@onready var _closed_pos: Vector2 = position
+@onready var _cat_closed_pos: Vector2 = cat.position
 var _shift_closed_pos: Array[Vector2] = []
 var _is_open := false
 
 
 func _ready() -> void:
-	_closed_pos = position
-	_cat_closed_pos = cat.position
 	for c in shift_with_cat:
 		_shift_closed_pos.append(c.position)
 
