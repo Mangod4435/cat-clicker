@@ -48,6 +48,16 @@ func on_clicked() -> void:
 	GameManager.add_upgrade(upgrade_name, 1)
 
 
+## Sort key for the upgrade menu: the price currently shown on this row.
+func get_sort_price() -> float:
+	return UpgradeAPI.get_calculated_price(upgrade_name, GameManager.get_upgrade(upgrade_name))
+
+
+## Tie-breaker when two upgrades have the same price.
+func get_sort_name() -> String:
+	return UpgradeAPI.display_name(upgrade_name)
+
+
 func _evaluate_state(price: float) -> int:
 	var cats := GameManager.cats
 	if cats >= price:

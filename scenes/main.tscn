@@ -83,7 +83,7 @@ script = ExtResource("5_2f3dj")
 [node name="Meow" type="AudioStreamPlayer" parent="CenterZone/Cat" unique_id=762678915]
 stream = ExtResource("6_yq6so")
 
-[node name="UpgradeMenu" type="TextureButton" parent="." unique_id=416743355 node_paths=PackedStringArray("cat", "panel", "shift_with_cat")]
+[node name="UpgradeMenu" type="TextureButton" parent="." unique_id=416743355 node_paths=PackedStringArray("cat", "panel", "rows", "shift_with_cat")]
 layout_mode = 1
 anchors_preset = 1
 anchor_left = 1.0
@@ -99,6 +99,7 @@ stretch_mode = 5
 script = ExtResource("8_tel4y")
 cat = NodePath("../CenterZone/Cat")
 panel = NodePath("Panel")
+rows = NodePath("Panel/Margin/Scroll/Rows")
 shift_with_cat = [NodePath("../CenterZone/CatsLabel")]
 
 [node name="Panel" type="PanelContainer" parent="UpgradeMenu" unique_id=1043514982]
