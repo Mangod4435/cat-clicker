@@ -89,6 +89,7 @@ func save_game() -> void:
 		"upgrades": _upgrades,
 		"revealed": _revealed,
 	})
+	print("[SaveSystem] Game Saved")
 
 
 func _load_game() -> void:

@@ -8,3 +8,7 @@ func _process(_delta: float) -> void:
 	if GameManager.cats != _last_cats:
 		text = "%s cats" % NumberFormatter.format_double(GameManager.cats)
 		_last_cats = GameManager.cats
+
+
+func on_clicked() -> void:
+	pass # Replace with function body.
