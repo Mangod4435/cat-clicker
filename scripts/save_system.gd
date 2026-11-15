@@ -13,7 +13,7 @@ static func get_default() -> Dictionary:
 	for n in UpgradeAPI.names():
 		upgrades[n] = 0
 		revealed[n] = false
-	return {"cats": 0.0, "upgrades": upgrades, "revealed": revealed}
+	return {"cats": 0.0, "upgrades": upgrades, "revealed": revealed, "sound_on": true}
 
 
 static func _hash(json: String) -> String:

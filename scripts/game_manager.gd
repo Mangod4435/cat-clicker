@@ -8,6 +8,7 @@ const AUTO_SAVE_INTERVAL := 30.0
 var cats: float = 0.0
 var cpc: float = 1.0 # cats per click
 var cps: float = 0.0 # cats per second
+var sound_on: bool = true # persisted settings
 
 var _upgrades: Dictionary = {}
 var _revealed: Dictionary = {}
@@ -88,6 +89,7 @@ func save_game() -> void:
 		"cps": cps,
 		"upgrades": _upgrades,
 		"revealed": _revealed,
+		"sound_on": sound_on,
 	})
 	print("[SaveSystem] Game Saved")
 
@@ -98,6 +100,7 @@ func _load_game() -> void:
 
 	var saved_upgrades: Dictionary = data.get("upgrades", {})
 	var saved_revealed: Dictionary = data.get("revealed", {})
+	sound_on = bool(data.get("sound_on", true))
 	_upgrades.clear()
 	_revealed.clear()
 	for n in UpgradeAPI.names():
