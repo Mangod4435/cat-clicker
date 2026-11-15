@@ -22,7 +22,57 @@
 [ext_resource type="Texture2D" uid="uid://d3rlxrt7lpwe5" path="res://assets/sprites/ui/check_off.png" id="24_chkoff"]
 
 [sub_resource type="StyleBoxFlat" id="2_backdrop"]
-bg_color = Color(0, 0, 0, 0.34901962)
+bg_color = Color(0, 0, 0, 0.2000000029802322)
+
+[sub_resource type="Shader" id="3_blur_shader"]
+code = "shader_type canvas_item;
+
+uniform sampler2D screen_tex : hint_screen_texture, filter_linear;
+uniform float blur_size : hint_range(0.0, 40.0) = 32.0;
+// Project viewport size from project.godot, so blur_size is in project pixels
+uniform vec2 project_resolution = vec2(1920.0, 1080.0);
+// Slight desaturation for the frosted-glass feel (0 = gray, 1 = full color)
+uniform float saturation : hint_range(0.0, 1.0) = 0.95;
+
+void fragment() {
+	vec2 texel = 1.0 / project_resolution;
+	vec4 item_color = COLOR;
+
+	// Poisson-disk style sampling: random rotation per pixel breaks up the
+	// sampling grid, avoiding blocky artifacts on large blur radii
+	float angle = fract(sin(dot(FRAGCOORD.xy, vec2(12.9898, 78.233))) * 43758.5453) * 6.2831853;
+	mat2 rot = mat2(vec2(cos(angle), sin(angle)), vec2(-sin(angle), cos(angle)));
+
+	// Golden-angle spiral of 33 taps, weighted by gaussian distance falloff
+	vec3 blurred = vec3(0.0);
+	float total_weight = 0.0;
+	float sigma = blur_size * 0.45;
+	for (int i = 0; i <= 32; i++) {
+		float r = sqrt(float(i) / 32.0);
+		float a = float(i) * 2.39996323;
+		vec2 off = rot * (vec2(cos(a), sin(a)) * r * blur_size * texel);
+		float d = r * blur_size;
+		float w = exp(-d * d / (2.0 * sigma * sigma));
+		blurred += texture(screen_tex, SCREEN_UV + off).rgb * w;
+		total_weight += w;
+	}
+	blurred /= total_weight;
+
+	// Genshin-style frosted glass: mute colors a little
+	float gray = dot(blurred, vec3(0.299, 0.587, 0.114));
+	blurred = mix(vec3(gray), blurred, saturation);
+
+	// Blend the blurred scene with the backdrop tint (stylebox color)
+	COLOR.rgb = mix(blurred, item_color.rgb, item_color.a);
+	COLOR.a = 1.0;
+}
+"
+
+[sub_resource type="ShaderMaterial" id="4_blur_material"]
+shader = SubResource("3_blur_shader")
+shader_parameter/blur_size = 32.0
+shader_parameter/project_resolution = Vector2(1920, 1080)
+shader_parameter/saturation = 0.95
 
 [node name="Main" type="Control" unique_id=1837436629]
 layout_mode = 3
@@ -169,6 +219,7 @@ upgrade_name = "Satellite"
 row_icon = ExtResource("17_5he1u")
 
 [node name="SettingPanel" type="PanelContainer" parent="." unique_id=464708292]
+material = SubResource("4_blur_material")
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0

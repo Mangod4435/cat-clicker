@@ -15,6 +15,9 @@ func _ready() -> void:
 			pivot_offset = size / 2.0
 		ButtonType.SETTING:
 			_setting_panel = get_node("/root/Main/SettingPanel")
+			# Panel (and its buttons) must keep working while the tree is paused
+			_setting_panel.process_mode = Node.PROCESS_MODE_ALWAYS
+			process_mode = Node.PROCESS_MODE_ALWAYS # gear button must stay clickable
 			_setting_panel.modulate.a = 1
 			_setting_panel.visible = false
 			_sound_toggle = _setting_panel.get_node("Margin/VBox/SoundRow/SoundToggle")
@@ -40,6 +43,7 @@ func on_clicked() -> void:
 		ButtonType.SETTING:
 			_sound_toggle.button_pressed = GameManager.sound_on # re-sync before showing
 			_setting_panel.visible = not _setting_panel.visible
+			get_tree().paused = _setting_panel.visible # freeze everything behind the menu
 
 
 func _on_toggled(toggled_on: bool) -> void:

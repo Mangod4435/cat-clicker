@@ -1,22 +1,31 @@
-# Cat Clicker (Godot 4.7)
+# 🐱 Cat Clicker
 
-Port of the Unity WebGL version. Renderer: Compatibility (web-friendly). Viewport 2560x1440 (same as the Unity canvas), stretch mode `canvas_items`.
+A cat clicker game made with **Godot 4.7** — click the cat, buy upgrades, watch the numbers go brrr.
 
-## Signals
-Wired in `scenes/main.tscn`:
+> This is the Godot version of Cat Clicker. The original [Unity WebGL version](https://github.com/Mangod4435/Cat-Clicker) is archived.
 
-| Node (in `scenes/main.tscn`) | Signal | Method |
-|---|---|---|
-| `Cat` | `pressed` | `on_clicked` |
-| `UpgradeMenu` | `pressed` | `on_clicked` |
-| each of the 7 rows under `UpgradeMenu/Panel/.../Rows` | `pressed` | `on_clicked` |
+## Features
 
-## Layout
-- `scripts/game_manager.gd` (autoload) - cats, CPC/CPS, upgrades, autosave every 30s, save on focus loss
-- `scripts/upgrade_api.gd` - one data table for names, base prices, CPC/CPS (price = base x 1.15^n)
-- `scripts/save_system.gd` - JSON + SHA-256 hash in `user://` (IndexedDB on web)
-- `scripts/ui/` - one script per Unity UI script
-- `scenes/main.tscn`, `scenes/upgrade_row.tscn`
+- **Click the cat** to earn cats
+- **Upgrade menu** with 7 upgrade rows (CPC/CPS based, prices scale by 1.15^n)
+- **Settings panel** with sound toggle and reset button (with blur effect)
+- **Autosave** every 30s and on focus loss — JSON + SHA-256 hash in `user://` (IndexedDB on web)
 
-## Not ported
-Tab system (`Tab.cs` / Tab View prefab, not used in the scene), editor-only `GameDebugWindow`, the "APPLY" button, `.xcf` source art (still in the Unity repo), TextMeshPro fonts.
+## Running
+
+Open the project in Godot 4.7 (renderer: **GL Compatibility**, web-friendly) and hit ▶, or export to web — the viewport is 2560x1440 with `canvas_items` stretch, same as the original Unity canvas.
+
+## Project layout
+
+| Path | What it does |
+|---|---|
+| `scripts/game_manager.gd` | autoload — cats, CPC/CPS, upgrades, autosave |
+| `scripts/upgrade_api.gd` | data table for upgrade names, base prices, CPC/CPS |
+| `scripts/save_system.gd` | JSON + SHA-256 hashed saves |
+| `scripts/ui/` | one script per UI element |
+| `scenes/main.tscn` | main scene |
+| `scenes/upgrade_row.tscn` | reusable upgrade row |
+
+## License
+
+See [LICENSE](LICENSE).
