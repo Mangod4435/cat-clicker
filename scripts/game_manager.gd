@@ -1,9 +1,14 @@
 extends Node
-## Autoload "GameManager". Port of GameManager.cs.
+## Autoload "GameManager". Port of GameManager.cs + SaveSystem.cs merged into one script.
 ## Upgrade levels / reveal flags live in dictionaries keyed by the names in UpgradeAPI.DATA,
 ## so there is no per-upgrade property or switch statement anymore.
+## Saves are JSON in user:// (IndexedDB on web exports) plus a hash of the JSON,
+## so hand-edited saves are rejected.
 
 const AUTO_SAVE_INTERVAL := 30.0
+
+const SAVE_PATH := "user://cat_clicker_save.json"
+const SAVE_SALT := "cat-clicker-save-v1"
 
 var cats: float = 0.0
 var cpc: float = 1.0 # cats per click
@@ -83,7 +88,7 @@ func get_revealed(upgrade_name: String) -> bool:
 # ------------------------------------------------------- Save / Load
 
 func save_game() -> void:
-	SaveSystem.save_data({
+	_write_save({
 		"cats": snappedf(cats, 0.00001),
 		"cpc": cpc,
 		"cps": cps,
@@ -91,11 +96,16 @@ func save_game() -> void:
 		"revealed": _revealed,
 		"sound_on": sound_on,
 	})
-	print("[SaveSystem] Game Saved")
+	print("[GameManager] Game Saved")
+
+
+func reset_game() -> void:
+	_destroy_save()
+	_load_game()
 
 
 func _load_game() -> void:
-	var data := SaveSystem.load_data()
+	var data := _read_save()
 	cats = snappedf(float(data.get("cats", 0.0)), 0.00001)
 
 	var saved_upgrades: Dictionary = data.get("upgrades", {})
@@ -109,9 +119,66 @@ func _load_game() -> void:
 	_recalculate()
 
 
-func reset_game() -> void:
-	SaveSystem.destroy_save()
-	_load_game()
+# ----------------------------------------------------- Save internals
+
+## Default state, used when there is no (valid) save yet.
+func _default_data() -> Dictionary:
+	var upgrades := {}
+	var revealed := {}
+	for n in UpgradeAPI.names():
+		upgrades[n] = 0
+		revealed[n] = false
+	return {"cats": 0.0, "upgrades": upgrades, "revealed": revealed, "sound_on": true}
+
+
+func _save_hash(json: String) -> String:
+	return (json + SAVE_SALT).sha256_text()
+
+
+func _has_save() -> bool:
+	return FileAccess.file_exists(SAVE_PATH)
+
+
+func _write_save(data: Dictionary) -> void:
+	var json := JSON.stringify(data)
+	var file := FileAccess.open(SAVE_PATH, FileAccess.WRITE)
+	if file == null:
+		push_error("[GameManager] Could not open save file: %s" % error_string(FileAccess.get_open_error()))
+		return
+	file.store_string(JSON.stringify({"json": json, "hash": _save_hash(json)}))
+	file.close()
+
+
+func _read_save() -> Dictionary:
+	if not _has_save():
+		print("[GameManager] No save found")
+		return _default_data()
+
+	var file := FileAccess.open(SAVE_PATH, FileAccess.READ)
+	if file == null:
+		return _default_data()
+
+	var outer = JSON.parse_string(file.get_as_text())
+	if typeof(outer) != TYPE_DICTIONARY or not outer.has("json") or not outer.has("hash"):
+		push_warning("[GameManager] Save file was invalid, using defaults")
+		return _default_data()
+
+	# protect against fake injected saves
+	if _save_hash(str(outer["json"])) != str(outer["hash"]):
+		push_warning("[GameManager] Save hash mismatch, using defaults")
+		return _default_data()
+
+	var inner = JSON.parse_string(str(outer["json"]))
+	if typeof(inner) != TYPE_DICTIONARY:
+		push_warning("[GameManager] Save data was invalid, using defaults")
+		return _default_data()
+	return inner
+
+
+func _destroy_save() -> void:
+	if _has_save():
+		DirAccess.open("user://").remove(SAVE_PATH.get_file())
+	print("[GameManager] Save destroyed")
 
 
 # ----------------------------------------------------------- Helpers

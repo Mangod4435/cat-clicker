@@ -19,9 +19,8 @@ Open the project in Godot 4.7 (renderer: **GL Compatibility**, web-friendly) and
 
 | Path | What it does |
 |---|---|
-| `scripts/game_manager.gd` | autoload — cats, CPC/CPS, upgrades, autosave |
+| `scripts/game_manager.gd` | autoload — cats, CPC/CPS, upgrades, autosave, JSON + SHA-256 hashed saves |
 | `scripts/upgrade_api.gd` | data table for upgrade names, base prices, CPC/CPS |
-| `scripts/save_system.gd` | JSON + SHA-256 hashed saves |
 | `scripts/ui/` | one script per UI element |
 | `scenes/main.tscn` | main scene |
 | `scenes/upgrade_row.tscn` | reusable upgrade row |
