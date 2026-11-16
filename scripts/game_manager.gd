@@ -2,21 +2,20 @@ extends Node
 ## Autoload "GameManager". Port of GameManager.cs + SaveSystem.cs merged into one script.
 ## Upgrade levels / reveal flags live in dictionaries keyed by the names in UpgradeAPI.DATA,
 ## so there is no per-upgrade property or switch statement anymore.
-## Saves are JSON in user:// (IndexedDB on web exports) plus a hash of the JSON,
-## so hand-edited saves are rejected.
+## Saves are pretty-printed JSON in user:// (IndexedDB on web exports) plus a
+## hash of the data, so hand-edited saves are rejected.
 
 const AUTO_SAVE_INTERVAL := 30.0
 
-const SAVE_PATH := "user://cat_clicker_save.json"
-const SAVE_SALT := "cat-clicker-save-v1"
+const SAVE_PATH := "user://save"
 
 var cats: float = 0.0
 var cpc: float = 1.0 # cats per click
 var cps: float = 0.0 # cats per second
 var sound_on: bool = true # persisted settings
 
-var _upgrades: Dictionary = {}
-var _revealed: Dictionary = {}
+var upgrades: Dictionary = {}
+var revealed: Dictionary = {}
 
 var _cps_timer := 0.0
 var _auto_save_timer := 0.0
@@ -54,23 +53,20 @@ func _notification(what: int) -> void:
 
 # ---------------------------------------------------------------- API
 
-func add_cat(amount: float = 1.0) -> void:
-	cats += amount
+func add_cat(amount: float = 1.0) -> void: cats += amount
 
 
-func set_cat(amount: float = 0.0) -> void:
-	cats = amount
+func set_cat(amount: float = 0.0) -> void: cats = amount
 
 
-func get_upgrade(upgrade_name: String) -> int:
-	return _upgrades.get(upgrade_name, 0)
+func get_upgrade(upgrade_name: String) -> int: return upgrades.get(upgrade_name, 0)
 
 
 func add_upgrade(upgrade_name: String, amount: int = 1) -> void:
 	if not UpgradeAPI.exists(upgrade_name):
 		push_error("That upgrade not found (%s)" % upgrade_name)
 		return
-	_upgrades[upgrade_name] = get_upgrade(upgrade_name) + amount
+	upgrades[upgrade_name] = get_upgrade(upgrade_name) + amount
 	_recalculate()
 
 
@@ -78,11 +74,10 @@ func set_revealed(upgrade_name: String, value: bool) -> void:
 	if not UpgradeAPI.exists(upgrade_name):
 		push_error("That upgrade not found (%s)" % upgrade_name)
 		return
-	_revealed[upgrade_name] = value
+	revealed[upgrade_name] = value
 
 
-func get_revealed(upgrade_name: String) -> bool:
-	return _revealed.get(upgrade_name, false)
+func get_revealed(upgrade_name: String) -> bool: return revealed.get(upgrade_name, false)
 
 
 # ------------------------------------------------------- Save / Load
@@ -92,9 +87,11 @@ func save_game() -> void:
 		"cats": snappedf(cats, 0.00001),
 		"cpc": cpc,
 		"cps": cps,
-		"upgrades": _upgrades,
-		"revealed": _revealed,
-		"sound_on": sound_on,
+		"upgrades": upgrades,
+		"revealed": revealed,
+		"settings": {
+			"sound_on": sound_on,
+		},
 	})
 	print("[GameManager] Game Saved")
 
@@ -110,33 +107,29 @@ func _load_game() -> void:
 
 	var saved_upgrades: Dictionary = data.get("upgrades", {})
 	var saved_revealed: Dictionary = data.get("revealed", {})
-	sound_on = bool(data.get("sound_on", true))
-	_upgrades.clear()
-	_revealed.clear()
+	var saved_settings: Dictionary = data.get("settings", {})
+	sound_on = bool(saved_settings.get("sound_on", true))
+	upgrades.clear()
+	revealed.clear()
 	for n in UpgradeAPI.names():
-		_upgrades[n] = int(saved_upgrades.get(n, 0))
-		_revealed[n] = bool(saved_revealed.get(n, false))
+		upgrades[n] = int(saved_upgrades.get(n, 0))
+		revealed[n] = bool(saved_revealed.get(n, false))
 	_recalculate()
 
 
 # ----------------------------------------------------- Save internals
 
+func _save_hash(json: String) -> String: return (json).sha256_text()
+func _has_save() -> bool: return FileAccess.file_exists(SAVE_PATH)
+
 ## Default state, used when there is no (valid) save yet.
 func _default_data() -> Dictionary:
-	var upgrades := {}
-	var revealed := {}
+	var _upgrades := {}
+	var _revealed := {}
 	for n in UpgradeAPI.names():
-		upgrades[n] = 0
-		revealed[n] = false
-	return {"cats": 0.0, "upgrades": upgrades, "revealed": revealed, "sound_on": true}
-
-
-func _save_hash(json: String) -> String:
-	return (json + SAVE_SALT).sha256_text()
-
-
-func _has_save() -> bool:
-	return FileAccess.file_exists(SAVE_PATH)
+		_upgrades[n] = 0
+		_revealed[n] = false
+	return {"cats": 0.0, "upgrades": _upgrades, "revealed": _revealed, "settings": {"sound_on": true}}
 
 
 func _write_save(data: Dictionary) -> void:
@@ -145,7 +138,7 @@ func _write_save(data: Dictionary) -> void:
 	if file == null:
 		push_error("[GameManager] Could not open save file: %s" % error_string(FileAccess.get_open_error()))
 		return
-	file.store_string(JSON.stringify({"json": json, "hash": _save_hash(json)}))
+	file.store_string(JSON.stringify({"hash": _save_hash(json), "data": data}, "\t"))
 	file.close()
 
 
@@ -159,19 +152,18 @@ func _read_save() -> Dictionary:
 		return _default_data()
 
 	var outer = JSON.parse_string(file.get_as_text())
-	if typeof(outer) != TYPE_DICTIONARY or not outer.has("json") or not outer.has("hash"):
+	if typeof(outer) != TYPE_DICTIONARY or not outer.has("data") or not outer.has("hash"):
 		push_warning("[GameManager] Save file was invalid, using defaults")
 		return _default_data()
-
-	# protect against fake injected saves
-	if _save_hash(str(outer["json"])) != str(outer["hash"]):
+	elif (_save_hash(JSON.stringify(outer["data"])) != str(outer["hash"])) and not OS.is_debug_build(): # protect against fake injected saves
 		push_warning("[GameManager] Save hash mismatch, using defaults")
 		return _default_data()
 
-	var inner = JSON.parse_string(str(outer["json"]))
+	var inner = outer["data"]
 	if typeof(inner) != TYPE_DICTIONARY:
 		push_warning("[GameManager] Save data was invalid, using defaults")
 		return _default_data()
+
 	return inner
 
 
@@ -187,6 +179,6 @@ func _recalculate() -> void:
 	cpc = 1.0
 	cps = 0.0
 	for n in UpgradeAPI.names():
-		var level: int = _upgrades.get(n, 0)
+		var level: int = upgrades.get(n, 0)
 		cpc += level * float(UpgradeAPI.DATA[n]["cpc"])
 		cps += level * float(UpgradeAPI.DATA[n]["cps"])
