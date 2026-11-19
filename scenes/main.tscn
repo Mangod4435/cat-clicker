@@ -236,6 +236,7 @@ offset_right = 460.0
 offset_bottom = 230.0
 
 [node name="SAVEButton" type="TextureButton" parent="TopLeftZone" unique_id=550879854]
+process_mode = 3
 layout_mode = 1
 offset_right = 200.0
 offset_bottom = 200.0
